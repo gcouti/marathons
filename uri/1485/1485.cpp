@@ -19,7 +19,7 @@ namespace patch
 #include <iostream>
 using namespace std;
 
-bool DEBUG=true;
+bool DEBUG=false;
 
 /**
  * This is the solution for the URI online problem
@@ -48,12 +48,12 @@ void merge(int list[], int lower, int upper, int pivot, bool abs)
     int i, j, k;
     int n1 = pivot - lower + 1;
     int n2 = upper - pivot;
-    leftArray = new int[n1];
-    rightArray = new int[n2];
+    leftArray = new int[n2];
+    rightArray = new int[n1];
     for (i = 0; i < n1; i++)
-        leftArray[i] = list[lower + i];
+        rightArray[i] = list[lower + i];
     for (j = 0; j < n2; j++)
-        rightArray[j] = list[pivot + 1 + j];
+        leftArray[j] = list[pivot + 1 + j];
 
     i = 0;
     j = 0;
@@ -195,21 +195,6 @@ int main()
         int* b = readVector(bSize);
         int* sum = sumVector(s, sSize);
 
-        int** matrix = new int*[bSize +1];
-        for (int i = 0; i <= bSize; ++i){
-            matrix[i] = new int[sSize];
-            for(int j=0; j < sSize; j++){
-                matrix[i][j] = 0;
-            }
-        }
-
-        mergeSort(b,0,bSize-1, true);
-
-        int *result = new int[bSize+1];
-        for(int i=0; i<bSize;i++ ){
-            result[i] = 0;
-        }
-
         if(DEBUG){
             test = "";
             for(int i=0; i<sSize; i++){
@@ -222,150 +207,87 @@ int main()
                 test += patch::to_string(b[i]) + " ";
             }
             cout << "Balls: " <<test << endl;
+            test = "";
+            for(int i=0; i<sSize; i++){
+                test += patch::to_string(sum[i]) + " ";
+            }
+            cout << "Sum: " <<test << endl;
         }
 
-        for(int i=1;i<=bSize;i++){
-            int lowestRowResult = 9999999;
-            int bestIndex = -1;
-            int bestSupportIndex = -1;
-            for(int j=0;j<sSize;j++){
-                int supportIndex =  (j > 0)? j-1 : sSize-1;
-//                if(matrix[0][j] != 1 && matrix[0][supportIndex] != 1){
-                int rowValue = result[i-1] + (sum[j] * b[i-1]);
-                matrix[i][j] = rowValue;
+        int result = 99999999;
+        int** matrix = new int*[bSize +1];
+        int* choosed = new int[sSize];
 
-                if(rowValue < lowestRowResult && matrix[0][j] != 1 &&  matrix[0][supportIndex] != 1 ){
-                    lowestRowResult = rowValue;
-                    bestIndex = j;
-                    bestSupportIndex = supportIndex;
+        for (int i = 0; i < bSize; ++i){
+            matrix[i] = new int[sSize];
+            for(int j=0; j < sSize; j++){
+                matrix[i][j] =0;
+            }
+        }
+
+        for(int si=0;si<sSize;si++){
+            int* choosed = new int[sSize];
+            int lowestRowValue = 99999999;
+            for(int j=0; j < sSize; j++){
+                int newJ = (si + j)%sSize;
+                matrix[0][j] = sum[newJ] * b[0];
+                if(j!=0 && matrix[0][j-1] < matrix[0][j]){
+                    matrix[0][j] = matrix[0][j-1];
+                }
+                if(matrix[0][j] < lowestRowValue){
+                    lowestRowValue = matrix[0][j];
+//                    cout << j << endl;
+                    choosed[0] = j;
                 }
             }
 
-            int total = 0;
-            bool hasIndex = false;
-            for(int j=0;j<sSize;j++){
-                int supportIndex =  (j > 0)? j-1 : sSize-1;
-                if(matrix[i][j] == lowestRowResult && matrix[0][j] == 0){
-                    hasIndex = true;
-                    matrix[0][j] = -1*i;
-                    total ++;
-                    matrix[0][supportIndex] = -1*i;
-                    total ++;
-                }
-            }
-            result[i] = lowestRowResult;
+            for (int i = 1; i < bSize; ++i){
+                lowestRowValue = 99999999;
+                for(int j=0; j < sSize; j++){
+                    int index = (j < 2) ? sSize - 2 +j: j -2;
+                    int value = (sum[(si + j)%sSize] * b[i]) + matrix[i-1][index];
+//                     if(j == i*2){
+//                        matrix[i][j] = value;
+//                    }
+//                    else {
+                        matrix[i][j] = value; //< matrix[i][j-1]? value:matrix[i][j] ;
+//                    }
+                    int previousIndex = j==0? sSize-1: j -1;
+                    int nextIndex = j==sSize-1?0:j+1;
 
-            if(!hasIndex || total == 2){
-                matrix[0][bestIndex] = 1;
-                matrix[0][bestSupportIndex] = 1;
-            }
+//                    cout << "A: " << previousIndex << endl;
+//                    cout << "N: " << nextIndex << endl;
 
-            if(DEBUG){
-                        cout << "Total: " << total << endl;
-                        cout << "L: " << lowestRowResult << endl;
-                        test = "";
-                        for(int i=0; i<=bSize;i++){
-                            for(int j=0; j<sSize; j++){
-                                test += patch::to_string(matrix[i][j]) + "\t";
-                            }
-                            test += "\n";
-                        }
-                        cout << "After Matrix: \n" << test << endl;
+                    if(matrix[i][j] < lowestRowValue && !isIn(choosed, sSize, j) && !isIn(choosed,sSize,previousIndex)){
+                        lowestRowValue = matrix[i][j];
+                        choosed[i-1] = previousIndex;
+                        choosed[i] = j;
                     }
+                }
+
+                if(DEBUG){
+                    test = "";
+                    for(int i=0; i<bSize;i++){
+                        for(int j=0; j<sSize; j++){
+                            test += patch::to_string(matrix[i][j]) + "\t";
+                        }
+                        test += "\n";
+                    }
+                    cout << "Lowest: " << result << endl;
+                    cout << "After Matrix: \n" << test << endl;
+                }
+            }
 
 
-
-//            for(int j=0;j<sSize;j++){
-//                if(){
-//                    matrix[0][j] =
-//                }
-//            }
-
-
+            result = lowestRowValue < result? lowestRowValue: result;
+            delete[] choosed;
         }
 
 
-//        int indexesSize = sSize;
-//        int* indexes = new int[sSize];
-//        for(int i=0;i<sSize;i++){
-//            indexes[i] = i;
-//        }
-//
-//        int chosen = 0;
-//        int chosenPrevious = indexesSize-1;
-//        for(int i=bSize-1; i>=0; i--){
-//            if(rouletteLoop){
-//                chosen = indexes[0];
-//                chosenPrevious = indexes[indexesSize-1];
-//            }
-//            else {
-//            if(DEBUG){
-//                            test = "";
-//                            for(int i=0; i<indexesSize; i++){
-//                                test += patch::to_string(indexes[i]) + " ";
-//                            }
-//                             cout << "Index List: " << test << endl;
-//                        }
-//
-//                int j = 1;
-//                do{
-//                    chosen = indexes[j];
-//                    chosenPrevious = indexes[j-1];
-//                    j++;
-//                }
-//                while(indexes[j] -1 != indexes[j-1]);
-//            }
-//
-//            int minValue = (s[chosen] + s[chosenPrevious]) * b[i];
-//
-//            if(DEBUG){
-//                cout << "indexes: " << chosenPrevious << " and " << chosen << endl;
-//                cout << "(" << s[chosen] << " + " << s[chosenPrevious] << ") * " << b[i] << " = "<< minValue<< endl;
-//            }
-//
-//            for(int j=chosen+1; j<indexesSize; j++){
-//                if(indexes[j] -1 > indexes[j-1]){
-//                    continue;
-//                }
-//                int newValue = (s[indexes[j-1]] + s[indexes[j]]) * b[i];
-//                if(minValue >= newValue){
-//                    minValue = newValue;
-//                    chosen = indexes[j];
-//                    chosenPrevious = chosen-1;
-//                }
-//            }
-//
-//            if(DEBUG){
-//               cout << "final indexes: " << chosenPrevious << " and " << chosen << endl;
-//               cout << "final value: " << minValue << " for: " << b[i] << endl;
-//            }
-//
-//            if(chosenPrevious == sSize -1 || chosenPrevious == 0){
-//                if(DEBUG){
-//                    cout << "Use de last loop" <<  endl;
-//                }
-//                rouletteLoop = false;
-//            }
-//
-//            result += -1*minValue;
-//            int removeArray[] = {chosenPrevious, chosen};
-//            indexes = removeElementsArray(indexes, removeArray,2, indexesSize);
-//
-//
-//            if(DEBUG){
-//                test = "";
-//                for(int i=0; i<indexesSize; i++){
-//                    test += patch::to_string(s[indexes[i]]) + " ";
-//                }
-//                 cout << "Index List: " << test << endl;
-//            }
-//        }
-//
-//
         delete[] s;
         delete[] b;
 
-	    cout << (result[bSize]*-1) << endl;
+	    cout << (-1*result) << endl;
 	}
 
 	return 0;
