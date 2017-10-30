@@ -25,13 +25,21 @@ int main()
 	    is >> n;
 
         if(n == 0) break;
+
 		for(int i=1; i<=n; i++) {
 		    std::getline(cin, in);
 		    std::istringstream is( in );
+
 			for(int j=1; j<=i; j++) {
 				is >> data[i][j];
-				sum[i][j]=(sum[i-1][j]+sum[i-1][j-1]-(i-2>=0?sum[i-2][j-1]:0))+data[i][j];
-				dp[i][j][0]=dp[i][j][1]=0;
+
+				int p = i-2>=0 ?sum[i-2][j-1]:0;
+				int value = sum[i-1][j] +sum[i-1][j-1] - p;
+
+				sum[i][j]= value + data[i][j];
+
+				dp[i][j][0]=0;
+				dp[i][j][1]=0;
             }
         }
 

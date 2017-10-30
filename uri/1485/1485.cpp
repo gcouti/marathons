@@ -19,7 +19,7 @@ namespace patch
 #include <iostream>
 using namespace std;
 
-#define INF 99999999;
+#define INF 999999999;
 
 bool DEBUG=false;
 

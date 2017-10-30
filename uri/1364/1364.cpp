@@ -45,9 +45,9 @@ int main()
 
                         if (isEqual){
                             total ++;
-                            for(int ei=0; ei <emoticon.length(); ei++ ){
-                                in[si-ei] = '&';
-                            }
+//                            for(int ei=0; ei <emoticon.length(); ei++ ){
+                              in[si] = ' ';
+//                            }
                             break;
                         }
                     }
