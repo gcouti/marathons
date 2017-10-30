@@ -19,6 +19,8 @@ namespace patch
 #include <iostream>
 using namespace std;
 
+#define INF 99999999;
+
 bool DEBUG=false;
 
 /**
@@ -41,80 +43,6 @@ int *readVector(int size) {
     return v;
 }
 
-void merge(int list[], int lower, int upper, int pivot, bool abs)
-{
-    int* leftArray = NULL;
-    int* rightArray = NULL;
-    int i, j, k;
-    int n1 = pivot - lower + 1;
-    int n2 = upper - pivot;
-    leftArray = new int[n2];
-    rightArray = new int[n1];
-    for (i = 0; i < n1; i++)
-        rightArray[i] = list[lower + i];
-    for (j = 0; j < n2; j++)
-        leftArray[j] = list[pivot + 1 + j];
-
-    i = 0;
-    j = 0;
-    k = lower;
-
-
-    while (i < n1 && j < n2)
-    {
-        int leftValue = leftArray[i];
-        int rightValue = rightArray[j];
-
-        if (abs){
-            leftValue = std::abs(leftValue);
-            rightValue = std::abs(rightValue);
-        }
-
-        if (leftValue <= rightValue)
-        {
-            list[k] = rightArray[i];
-            i++;
-        }
-        else
-        {
-            list[k] = leftArray[j];
-            j++;
-        }
-
-        k++;
-    }
-
-    while (i < n1)
-    {
-        list[k] = rightArray[i];
-        i++;
-        k++;
-    }
-
-    while (j < n2)
-    {
-        list[k] = leftArray[j];
-        j++;
-        k++;
-    }
-
-    delete [] leftArray;
-    delete [] rightArray;
-}
-
-void mergeSort(int list[], int lower, int upper, bool abs)
-{
-    int pivot;
-
-    if (upper > lower)
-    {
-        pivot = ( lower + upper) / 2;
-        mergeSort(list, lower, pivot, abs);
-        mergeSort(list, pivot + 1, upper, abs);
-        merge(list, lower, upper, pivot, abs);
-    }
-}
-
 
 bool isIn(int *array, int arraySize, int element){
     for(int i=0;i<arraySize;i++){
@@ -124,27 +52,6 @@ bool isIn(int *array, int arraySize, int element){
     }
 
     return false;
-}
-
-
-int* removeElementsArray(int * array, int* remove, int removeSize, int &size){
-    int index = -1;
-    int newSize = size -removeSize;
-    if (newSize <= 0){
-        size =0;
-        return array;
-    }
-
-    int *newArray = new int[newSize];
-    for(int j=0;j<size;j++){
-        if(isIn(remove,removeSize, j)){
-            continue;
-        }
-        index += 1;
-        newArray[index] = array[j];
-    }
-    size = newSize;
-    return newArray;
 }
 
 int* sumVector(int s[], int size){
@@ -159,24 +66,7 @@ int* sumVector(int s[], int size){
 
 int main()
 {
-//    int size = 7;
-//    int a[size] = {0,1,-14,3,4,-5,6};
-//
     string test = "";
-//    for(int i=0; i<size; i++){
-//        test += patch::to_string(a[i]) + " ";
-//    }
-//    cout << "Vb:  "<< test << endl;
-//
-//    mergeSort(a, 0, size -1, true);
-//
-//    test = "";
-//    for(int i=0; i<size; i++){
-//        test += patch::to_string(a[i]) + " ";
-//    }
-//
-//    cout << "Va:  "<< test << endl;
-
     string in;
 
 	while(true){
@@ -215,8 +105,8 @@ int main()
         }
 
         int result = 99999999;
-        int** matrix = new int*[bSize +1];
-        int* choosed = new int[sSize];
+        int** matrix = new int*[bSize];
+        int* choosed = new int[bSize];
 
         for (int i = 0; i < bSize; ++i){
             matrix[i] = new int[sSize];
@@ -226,46 +116,71 @@ int main()
         }
 
         for(int si=0;si<sSize;si++){
-            int* choosed = new int[sSize];
-            int lowestRowValue = 99999999;
-            for(int j=0; j < sSize; j++){
-                int newJ = (si + j)%sSize;
+            int isFirst = true;
+            int lowestRowValue = INF;
+            int previousRowValue = INF;
+
+            for(int j=0; j < (sSize - 2*(bSize -1)); j++){
+                int newJ = (si + j) % sSize;
                 matrix[0][j] = sum[newJ] * b[0];
+
+                if (j!=0 && matrix[0][j-1] == matrix[0][j]){
+                    isFirst = false;
+                }
+
                 if(j!=0 && matrix[0][j-1] < matrix[0][j]){
                     matrix[0][j] = matrix[0][j-1];
                 }
+
                 if(matrix[0][j] < lowestRowValue){
                     lowestRowValue = matrix[0][j];
-//                    cout << j << endl;
-                    choosed[0] = j;
                 }
+
+
             }
 
             for (int i = 1; i < bSize; ++i){
-                lowestRowValue = 99999999;
-                for(int j=0; j < sSize; j++){
+                lowestRowValue = INF;
+//                cout << "sSize: " << sSize << endl;
+//                cout << "bSize: " << bSize << endl;
+//                cout << "R: " << (sSize - 2*(bSize -i -1)) << endl;
+
+                for(int j=i*2; j < (sSize - 2*(bSize -i -1)); j++){
                     int index = (j < 2) ? sSize - 2 +j: j -2;
                     int value = (sum[(si + j)%sSize] * b[i]) + matrix[i-1][index];
-//                     if(j == i*2){
-//                        matrix[i][j] = value;
-//                    }
-//                    else {
-                        matrix[i][j] = value; //< matrix[i][j-1]? value:matrix[i][j] ;
-//                    }
-                    int previousIndex = j==0? sSize-1: j -1;
-                    int nextIndex = j==sSize-1?0:j+1;
 
-//                    cout << "A: " << previousIndex << endl;
-//                    cout << "N: " << nextIndex << endl;
+//                    cout << "Index: " << index << endl;
+//                    cout << "Ni: "<< (si + j)%sSize << endl;
+//                    cout << "Mv: " << matrix[i-1][index] << endl;
+//                    cout << "su: " << sum[(si + j)%sSize] << endl;
+//                    cout << "ba: " << b[i] << endl;
+//                    cout << "V: " << value << endl;
+                    if(j == i*2){
+                        matrix[i][j] = value;
+                    }
+                    else {
+                        matrix[i][j] = value < matrix[i][j-1]? value:matrix[i][j-1] ;
+                    }
 
-                    if(matrix[i][j] < lowestRowValue && !isIn(choosed, sSize, j) && !isIn(choosed,sSize,previousIndex)){
+//                    int previousIndex = j==0? sSize-1: j -1;
+//                    int nextIndex = j==sSize-1?0:j+1;
+
+                    if(matrix[i][j] < lowestRowValue){
+
+                        if(j == sSize-1 && isFirst) continue;
                         lowestRowValue = matrix[i][j];
-                        choosed[i-1] = previousIndex;
-                        choosed[i] = j;
                     }
                 }
+            }
 
-                if(DEBUG){
+if(DEBUG){
+                    cout << "Lowest: " << lowestRowValue << endl;
+            test = "";
+            for(int i=0; i<sSize; i++){
+                test += patch::to_string(sum[(si + i)%sSize]) + "\t";
+            }
+            cout << "S: \n" <<test << endl;
+
                     test = "";
                     for(int i=0; i<bSize;i++){
                         for(int j=0; j<sSize; j++){
@@ -273,14 +188,13 @@ int main()
                         }
                         test += "\n";
                     }
-                    cout << "Lowest: " << result << endl;
-                    cout << "After Matrix: \n" << test << endl;
+                    cout << "_ \n" << test << endl;
+
+
                 }
-            }
 
 
             result = lowestRowValue < result? lowestRowValue: result;
-            delete[] choosed;
         }
 
 

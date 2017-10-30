@@ -8,7 +8,7 @@ for directory in ${DIRECTORIES}; do
   pushd . > /dev/null
   cd $directory 
   rm -rf exe
-  g++ $(ls | grep *.cpp) -o exe
+  g++ -std=c++11 $(ls | grep *.cpp) -o exe
   
   out=$(./exe < input)
   real=$(cat output)
