@@ -10,15 +10,15 @@ for directory in ${DIRECTORIES}; do
   rm -rf exe
   g++ -std=c++11 $(ls | grep *.cpp) -o exe
   
-  out=$(./exe < input)
-  real=$(cat output)
+  ./exe < input > out
   
-  if [[ $out != $real ]]; then
-    echo "${directory} failed"
-    echo "Result:"
-    echo "$out"
-    echo "Expected:" 
-    echo "$real"
+  if [[ $(cat out) != $(cat output) ]]; then
+    echo "Busted..."
+    if [[ $1 == '-v' ]]; then
+      cat out
+    else
+      vimdiff <(cat out) <(cat output)
+    fi
     exit 1
   fi
   popd > /dev/null
