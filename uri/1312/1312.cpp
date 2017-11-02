@@ -9,7 +9,7 @@ const int SIZE=1e+3+35;
 
 int data[SIZE][SIZE];
 int sum[SIZE][SIZE];
-int dp[SIZE][SIZE][2];
+int r[SIZE][SIZE][2];
 
 int main()
 {
@@ -34,25 +34,25 @@ int main()
 				is >> data[i][j];
 
 				int p = i-2>=0 ?sum[i-2][j-1]:0;
-				int value = sum[i-1][j] +sum[i-1][j-1] - p;
+				int value = sum[i-1][j] + sum[i-1][j-1] - p;
 
 				sum[i][j]= value + data[i][j];
 
-				dp[i][j][0]=0;
-				dp[i][j][1]=0;
+				r[i][j][0]=0;
+				r[i][j][1]=0;
             }
         }
 
 		int ans=0;
 		for(int j=1; j<=n; j++) {
 			for(int i=j; i<=n; i++) {
-				dp[i][j][0]=sum[i][j];
-				dp[i][j][0]=max(dp[i][j][0], dp[i-1][j-1][1]+(sum[i][j]-sum[i-1][j-1]));
-				ans=std::max(ans, dp[i][j][0]);
+				r[i][j][0]=sum[i][j];
+				r[i][j][0]=max(r[i][j][0], r[i-1][j-1][1]+(sum[i][j]-sum[i-1][j-1]));
+				ans=std::max(ans, r[i][j][0]);
 			}
-			dp[n][j][1]=dp[n][j][0];
+			r[n][j][1]=r[n][j][0];
 			for(int i=n-1; i>=j; i--)
-				dp[i][j][1]=max(dp[i+1][j][1], dp[i][j][0]);
+				r[i][j][1]=max(r[i+1][j][1], r[i][j][0]);
 		}
 		cout << ans << endl;
 	}

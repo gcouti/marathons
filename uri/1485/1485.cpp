@@ -141,29 +141,17 @@ int main()
 
             for (int i = 1; i < bSize; ++i){
                 lowestRowValue = INF;
-//                cout << "sSize: " << sSize << endl;
-//                cout << "bSize: " << bSize << endl;
-//                cout << "R: " << (sSize - 2*(bSize -i -1)) << endl;
 
                 for(int j=i*2; j < (sSize - 2*(bSize -i -1)); j++){
                     int index = (j < 2) ? sSize - 2 +j: j -2;
                     int value = (sum[(si + j)%sSize] * b[i]) + matrix[i-1][index];
 
-//                    cout << "Index: " << index << endl;
-//                    cout << "Ni: "<< (si + j)%sSize << endl;
-//                    cout << "Mv: " << matrix[i-1][index] << endl;
-//                    cout << "su: " << sum[(si + j)%sSize] << endl;
-//                    cout << "ba: " << b[i] << endl;
-//                    cout << "V: " << value << endl;
                     if(j == i*2){
                         matrix[i][j] = value;
                     }
                     else {
                         matrix[i][j] = value < matrix[i][j-1]? value:matrix[i][j-1] ;
                     }
-
-//                    int previousIndex = j==0? sSize-1: j -1;
-//                    int nextIndex = j==sSize-1?0:j+1;
 
                     if(matrix[i][j] < lowestRowValue){
 
@@ -173,30 +161,26 @@ int main()
                 }
             }
 
-if(DEBUG){
-                    cout << "Lowest: " << lowestRowValue << endl;
-            test = "";
-            for(int i=0; i<sSize; i++){
-                test += patch::to_string(sum[(si + i)%sSize]) + "\t";
-            }
-            cout << "S: \n" <<test << endl;
+            if(DEBUG){
+                cout << "Lowest: " << lowestRowValue << endl;
+                test = "";
+                for(int i=0; i<sSize; i++){
+                    test += patch::to_string(sum[(si + i)%sSize]) + "\t";
+                }
+                cout << "S: \n" <<test << endl;
 
-                    test = "";
-                    for(int i=0; i<bSize;i++){
-                        for(int j=0; j<sSize; j++){
-                            test += patch::to_string(matrix[i][j]) + "\t";
-                        }
-                        test += "\n";
+                test = "";
+                for(int i=0; i<bSize;i++){
+                    for(int j=0; j<sSize; j++){
+                        test += patch::to_string(matrix[i][j]) + "\t";
                     }
-                    cout << "_ \n" << test << endl;
-
-
+                     test += "\n";
                 }
 
-
+                cout << "_ \n" << test << endl;
+            }
             result = lowestRowValue < result? lowestRowValue: result;
         }
-
 
         delete[] s;
         delete[] b;
