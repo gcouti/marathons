@@ -1,17 +1,3 @@
-#include <algorithm>
-#include <string>
-#include <sstream>
-#include <cmath>
-#include <iterator>
-namespace patch
-{
-    template < typename T > std::string to_string( const T& n )
-    {
-        std::ostringstream stm ;
-        stm << n ;
-        return stm.str() ;
-    }
-}
 #include <iostream>
 
 #include <sstream>
@@ -20,8 +6,6 @@ namespace patch
 using namespace std;
 
 #define INF 999999999;
-
-bool DEBUG=false;
 
 /**
  * This is the solution for the URI online problem
@@ -41,17 +25,6 @@ int *readVector(int size) {
     }
 
     return v;
-}
-
-
-bool isIn(int *array, int arraySize, int element){
-    for(int i=0;i<arraySize;i++){
-        if(array[i] == element){
-            return true;
-        }
-    }
-
-    return false;
 }
 
 int* sumVector(int s[], int size){
@@ -74,9 +47,8 @@ int main()
 	    std::getline(cin, in);
 	    std::istringstream is( in );
 
-        if (in == "0 0"){
-            break;
-        }
+        if (in == "0 0") break;
+
         int sSize, bSize;
         is >> sSize;
         is >> bSize;
@@ -85,47 +57,25 @@ int main()
         int* b = readVector(bSize);
         int* sum = sumVector(s, sSize);
 
-        if(DEBUG){
-            test = "";
-            for(int i=0; i<sSize; i++){
-                test += patch::to_string(s[i]) + " ";
-            }
-            cout << "Roulette: " <<test << endl;
-
-            test = "";
-            for(int i=0; i<bSize; i++){
-                test += patch::to_string(b[i]) + " ";
-            }
-            cout << "Balls: " <<test << endl;
-            test = "";
-            for(int i=0; i<sSize; i++){
-                test += patch::to_string(sum[i]) + " ";
-            }
-            cout << "Sum: " <<test << endl;
-        }
-
-        int result = 99999999;
+        int result = INF;
         int** matrix = new int*[bSize];
         int* choosed = new int[bSize];
 
-        for (int i = 0; i < bSize; ++i){
-            matrix[i] = new int[sSize];
-            for(int j=0; j < sSize; j++){
-                matrix[i][j] =0;
-            }
-        }
+        for (int i = 0; i < bSize; ++i) matrix[i] = new int[sSize];
 
         for(int si=0;si<sSize;si++){
-            int isFirst = true;
+            int firstSelected = true;
+            int offset = 0;
             int lowestRowValue = INF;
-            int previousRowValue = INF;
 
             for(int j=0; j < (sSize - 2*(bSize -1)); j++){
+
                 int newJ = (si + j) % sSize;
                 matrix[0][j] = sum[newJ] * b[0];
 
-                if (j!=0 && matrix[0][j-1] == matrix[0][j]){
-                    isFirst = false;
+                if (j!=0 && matrix[0][0] == matrix[0][j]){
+                    firstSelected = false;
+                    offset = j;
                 }
 
                 if(j!=0 && matrix[0][j-1] < matrix[0][j]){
@@ -133,10 +83,10 @@ int main()
                 }
 
                 if(matrix[0][j] < lowestRowValue){
+                    if(j>0) firstSelected = false;
+                    choosed[0] = j;
                     lowestRowValue = matrix[0][j];
                 }
-
-
             }
 
             for (int i = 1; i < bSize; ++i){
@@ -150,40 +100,33 @@ int main()
                         matrix[i][j] = value;
                     }
                     else {
-                        matrix[i][j] = value < matrix[i][j-1]? value:matrix[i][j-1] ;
+                        if(value < matrix[i][j-1]){
+                            matrix[i][j] = value;
+                        }
+                        else{
+                            matrix[i][j] = matrix[i][j-1];
+                            offset = j;
+                        }
                     }
 
                     if(matrix[i][j] < lowestRowValue){
+                        if( firstSelected && j == sSize-1) continue;
 
-                        if(j == sSize-1 && isFirst) continue;
+                        choosed[i] = j;
                         lowestRowValue = matrix[i][j];
                     }
                 }
+
+                if(choosed[i] >= (i*2) && choosed[i] <= (i*2) + offset) firstSelected = true;
+
             }
 
-            if(DEBUG){
-                cout << "Lowest: " << lowestRowValue << endl;
-                test = "";
-                for(int i=0; i<sSize; i++){
-                    test += patch::to_string(sum[(si + i)%sSize]) + "\t";
-                }
-                cout << "S: \n" <<test << endl;
-
-                test = "";
-                for(int i=0; i<bSize;i++){
-                    for(int j=0; j<sSize; j++){
-                        test += patch::to_string(matrix[i][j]) + "\t";
-                    }
-                     test += "\n";
-                }
-
-                cout << "_ \n" << test << endl;
-            }
             result = lowestRowValue < result? lowestRowValue: result;
         }
 
-        delete[] s;
-        delete[] b;
+//        delete[] s;
+//        delete[] b;
+//        delete[] choosed;
 
 	    cout << (-1*result) << endl;
 	}
