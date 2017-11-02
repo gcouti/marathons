@@ -72,12 +72,7 @@ int main()
         int** matrix = new int*[bSize];
         int* choosed = new int[bSize];
 
-        for (int i = 0; i < bSize; ++i){
-            matrix[i] = new int[sSize];
-            for(int j=0; j < sSize; j++) {
-                matrix[i][j] = 0;
-            }
-        }
+        for (int i = 0; i < bSize; ++i) matrix[i] = new int[sSize];
 
         for(int si=0;si<sSize;si++){
             int firstSelected = true;
@@ -126,25 +121,23 @@ int main()
                     }
 
                     if(matrix[i][j] < lowestRowValue){
-                        if( firstSelected && j == sSize-1) {
-                            continue;
-                        }
+                        if( firstSelected && j == sSize-1) continue;
+
                         choosed[i] = j;
                         lowestRowValue = matrix[i][j];
                     }
                 }
 
-                if(choosed[i] >= (i*2) && choosed[i] <= (i*2) + offset) {
-                    firstSelected = true;
-                }
+                if(choosed[i] >= (i*2) && choosed[i] <= (i*2) + offset) firstSelected = true;
+
             }
 
             result = lowestRowValue < result? lowestRowValue: result;
         }
 
-        delete[] s;
-        delete[] b;
-        delete[] choosed;
+//        delete[] s;
+//        delete[] b;
+//        delete[] choosed;
 
 	    cout << (-1*result) << endl;
 	}
