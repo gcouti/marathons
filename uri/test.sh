@@ -4,7 +4,7 @@ DIRECTORIES=$(ls -d */)
 #DIRECTORIES=$(ls -d */ | grep 1485)
 
 for directory in ${DIRECTORIES}; do
-  echo "Test ${directory}"
+  echo "Testing case: ${directory} ..."
   pushd . > /dev/null
   cd $directory 
   rm -rf exe
