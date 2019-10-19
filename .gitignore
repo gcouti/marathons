@@ -34,3 +34,6 @@
 .idea*
 /uri/*/exe
 
+*data/
+*.env/
+*.ipynb_checkpoints/
