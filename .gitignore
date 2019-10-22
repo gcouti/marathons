@@ -34,6 +34,7 @@
 .idea*
 /uri/*/exe
 
-*data/
+*.bin/
 *.env/
 *.ipynb_checkpoints/
+kaggle/*/data/

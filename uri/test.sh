@@ -1,25 +1,25 @@
-#! /bin/bash
+#!/bin/bash
 
-DIRECTORIES=$(ls -d */)
-#DIRECTORIES=$(ls -d */ | grep 1485)
+PATH=$1
+BIN_PATH=$PATH./.bin/exe 
 
-for directory in ${DIRECTORIES}; do
-  echo "Testing case: ${directory} ..."
-  pushd . > /dev/null
-  cd $directory 
-  rm -rf exe
-  g++ -std=c++11 $(ls | grep *.cpp) -o exe
-  
-  ./exe < input > out
-  
-  if [[ $(cat out) != $(cat output) ]]; then
-    echo "Busted..."
-    if [[ $1 == '-v' ]]; then
-      cat out
-    else
-      vimdiff <(cat out) <(cat output)
-    fi
-    exit 1
+INPUT_PATH=$PATH/data/input
+RUN_OUT_PATH=$PATH./.bin/out
+EXPECTED_OUT_PATH=$PATH/data/output
+
+$BIN_PATH < $INPUT_PATH > $RUN_OUT_PATH 
+
+RUN_OUT=$(/bin/cat $RUN_OUT_PATH)
+EXPECTED_OUT=$(/bin/cat $EXPECTED_OUT_PATH)
+
+if [[ "$RUN_OUT" != "$EXPECTED_OUT" ]]; then
+  echo "$1 Busted..."
+  if [[ $1 == '-v' ]]; then
+    /bin/cat out
+  else
+    /bin/vimdiff "$RUN_OUT_PATH" "$EXPECTED_OUT_PATH"
   fi
-  popd > /dev/null
-done
+  exit 1
+else
+  echo "OK!"
+fi
