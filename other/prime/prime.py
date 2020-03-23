@@ -7,6 +7,7 @@ from itertools import count, islice
 def is_prime(n):
     """
     Check if a number is prime
+
     :param n:
     :return: boolean
     """
