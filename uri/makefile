@@ -6,7 +6,8 @@ all: compile
 compile: $(problem)
 $(problem):
 	mkdir -p $@/.bin/
-	g++ -std=c++11 $@/main.cpp -o $@/.bin/exe
+	#g++ -std=c++11 $@/main.cpp -o $@/.bin/exe
+	g++ -std=c++11 -O2 -lm $@/main.cpp -o $@/.bin/exe
 
 test:
 	@for f in $(problem); do ./test.sh $$f/; done
